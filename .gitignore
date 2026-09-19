@@ -36,3 +36,15 @@ next-env.d.ts
 # opencode / editor
 .idea/
 .vscode/
+
+# runtime database + blobs (do not version)
+.data/
+
+# session probe dumps
+zzsnap/
+
+# logs
+*.log
+
+# archives
+*.zip
