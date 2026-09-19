@@ -1,0 +1,61 @@
+﻿555: // ---------------------------------------------------------------------------
+556: // Training & Courses Catalog (Udemy-style)
+557: // ---------------------------------------------------------------------------
+558: 
+559: export const COURSE_STATUSES = ["draft", "published", "archived"] as const;
+560: export const PROGRESS_STATUSES = ["enrolled", "in_progress", "completed"] as const;
+561: 
+562: export const courses = sqliteTable(
+563:   "courses",
+564:   {
+565:     id: text("id").primaryKey(),
+566:     tenantId: text("tenant_id")
+567:       .notNull()
+568:       .references(() => tenants.id, { onDelete: "cascade" }),
+569:     title: text("title").notNull(),
+570:     description: text("description"),
+571:     category: text("category").notNull().default("other"),
+572:     provider: text("provider"),
+573:     level: text("level").notNull().default("beginner"),
+574:     durationMinutes: integer("duration_minutes").notNull().default(0),
+575:     coverUrl: text("cover_url"),
+576:     courseUrl: text("course_url"),
+577:     tags: text("tags", { mode: "json" }).$type<string[]>(),
+578:     status: text("status").notNull().default("draft"), // draft | published | archived
+579:     createdById: text("created_by_id").references(() => users.id, { onDelete: "set null" }),
+580:     ...timestamps,
+581:   },
+582:   (t) => [
+583:     index("courses_tenant_idx").on(t.tenantId),
+584:     index("courses_tenant_status_idx").on(t.tenantId, t.status),
+585:   ]
+586: );
+587: 
+588: export const courseProgress = sqliteTable(
+589:   "course_progress",
+590:   {
+591:     id: text("id").primaryKey(),
+592:     tenantId: text("tenant_id")
+593:       .notNull()
+594:       .references(() => tenants.id, { onDelete: "cascade" }),
+595:     courseId: text("course_id")
+596:       .notNull()
+597:       .references(() => courses.id, { onDelete: "cascade" }),
+598:     userId: text("user_id")
+599:       .notNull()
+600:       .references(() => users.id, { onDelete: "cascade" }),
+601:     status: text("status").notNull().default("enrolled"), // enrolled | in_progress | completed
+602:     progress: integer("progress").notNull().default(0),
+603:     enrolledAt: integer("enrolled_at").notNull(),
+604:     completedAt: integer("completed_at"),
+605:     ...timestamps,
+606:   },
+607:   (t) => [
+608:     index("course_progress_tenant_idx").on(t.tenantId),
+609:     index("course_progress_course_idx").on(t.courseId),
+610:     index("course_progress_user_idx").on(t.userId),
+611:     uniqueIndex("course_progress_user_course_idx").on(t.userId, t.courseId),
+612:   ]
+613: );
+614: 
+615: 

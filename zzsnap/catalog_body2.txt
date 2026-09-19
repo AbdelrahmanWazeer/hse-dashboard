@@ -1,0 +1,34 @@
+﻿150:                       )}
+151:                       {statusMeta && (
+152:                         <Badge style={{ backgroundColor: `${statusMeta.color}22`, color: statusMeta.color }}>
+153:                           {statusMeta.label}
+154:                         </Badge>
+155:                       )}
+156:                     </div>
+157:                     <h3 className="line-clamp-2 font-semibold leading-snug">{c.title}</h3>
+158:                     <p className="line-clamp-2 text-sm text-muted-foreground">{c.description}</p>
+159:                     <p className="flex items-center gap-4 text-sm text-muted-foreground">
+160:                       {c.durationMinutes > 0 && (
+161:                         <span className="inline-flex items-center gap-1.5">
+162:                           <Clock className="h-4 w-4" />
+163:                           {formatDurationLabel(c.durationMinutes, tf)}
+164:                         </span>
+165:                       )}
+166:                       <span className="inline-flex items-center gap-1.5">
+167:                         <Users className="h-4 w-4" />
+168:                         {t.learners(enrolledByCourse.get(c.id) ?? 0)}
+169:                       </span>
+170:                     </p>
+171:                     <Button asChild className="w-full">
+172:                       <Link href="/login">{t.enroll}</Link>
+173:                     </Button>
+174:                   </CardContent>
+175:                 </Card>
+176:               );
+177:             })}
+178:           </div>
+179:         )}
+180:       </section>
+181:     </div>
+182:   );
+183: }

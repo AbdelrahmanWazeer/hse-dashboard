@@ -1,0 +1,20 @@
+﻿95:     ctaSubtitle: "Sign in with your HSE account, Google, or LinkedIn.",
+96:     footer: {
+97:       product: "Product",
+98:       company: "Company",
+99:       legal: "Legal",
+100:       rights: "All rights reserved.",
+101:     },
+102:   },
+103:   catalog: {
+104:     title: "Course catalog",
+105:     subtitle:
+106:       "Browse every HSE training course available on the platform, from awareness briefings to full compliance programs.",
+107:     searchPlaceholder: "Search coursesâ€¦",
+108:     allCategories: "All categories",
+109:     allLevels: "All levels",
+110:     emptyTitle: "No courses found",
+111:     emptySubtitle: "Try adjusting your search or filters.",
+112:     enroll: "Enroll now",
+113:     learners: (count: number) => `${count} learner${count === 1 ? "" : "s"}`,
+114:   },
