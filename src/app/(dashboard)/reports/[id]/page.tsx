@@ -53,14 +53,14 @@ export default async function ReportDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ email?: string; emailDetail?: string; schedule?: string }>;
+  searchParams: Promise<{ email?: string; emailDetail?: string; schedule?: string; to?: string }>;
 }) {
   const user = await requireUser();
   const tenant = await getCurrentTenant();
   const t = await getT();
   const locale = await getLocale();
   const { id } = await params;
-  const { email, emailDetail, schedule } = await searchParams;
+  const { email, emailDetail, schedule, to } = await searchParams;
 
   const report = db.select().from(reports).where(eq(reports.id, id)).get();
   if (!report || report.tenantId !== tenant.id) notFound();
@@ -144,6 +144,18 @@ export default async function ReportDetailPage({
           </a>
           {can(user.role as never, "reports:export") && (
             <form action={emailReport} className="flex items-center gap-1.5">
+          {email === "revise" && to && (
+            <div className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm">
+              <span className="text-amber-700 dark:text-amber-400">
+                {t("Review the report before sending to: ", "Review the report before sending to: ")}{to}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <a href={`/reports/${report.id}?email=cancel&to=${encodeURIComponent(String(to))}`} className="text-xs text-muted-foreground hover:underline">
+                  {t("Cancel", "Cancel")}
+                </a>
+              </span>
+            </div>
+          )}
               <input type="hidden" name="id" value={report.id} />
               <Input
                 type="email"

@@ -164,6 +164,14 @@ export async function emailReport(formData: FormData) {
     redirect(`/reports/${reportId}?email=failed&emailDetail=${encodeURIComponent("Please enter a valid email address.")}`);
   }
 
+  // Revised-before-send gate: when the sender asks to review first, we do not
+  // email the report yet. We stash the recipient on the query string and send
+  // the user to the report page, which shows a confirmation panel. The panel's
+  // own submit (without the revise flag) triggers the real email below.
+  if (String(formData.get("revise") ?? "") === "1") {
+    redirect(`/reports/${reportId}?email=revise&to=${encodeURIComponent(to)}`);
+  }
+
   const tenant = db.select().from(tenants).where(eq(tenants.id, report.tenantId)).get();
   const periodLabel = report.startDate
     ? new Date(report.startDate).toLocaleDateString("en-US", { month: "long", year: "numeric" })

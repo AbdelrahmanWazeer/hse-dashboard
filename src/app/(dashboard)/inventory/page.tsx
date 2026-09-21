@@ -10,7 +10,7 @@ import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { Table, TableBody, TableRow, TableHeader, TableHead, TableCell } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
 import { Plus, Package, AlertTriangle, DollarSign, ArrowDownUp, Pencil } from "lucide-react";
 import Link from "next/link";
@@ -92,7 +92,7 @@ export default async function InventoryPage() {
           </CardHeader>
           <CardContent>
             <Table>
-              <TableHead>
+              <TableHeader>
                 <TableRow>
                   <TableCell className="font-medium">{t("Item", "العنصر")}</TableCell>
                   <TableCell className="font-medium">{t("Category", "الفئة")}</TableCell>
@@ -102,7 +102,7 @@ export default async function InventoryPage() {
                   <TableCell className="font-medium">{t("Level", "المستوى")}</TableCell>
                   {canManage && <TableCell className="font-medium">{t("Actions", "إجراءات")}</TableCell>}
                 </TableRow>
-              </TableHead>
+              </TableHeader>
               <TableBody>
                 {items.map((item) => {
                   const low = item.available < item.minReorderLevel;
@@ -178,14 +178,14 @@ export default async function InventoryPage() {
           </CardHeader>
           <CardContent>
             <Table>
-              <TableHead>
+              <TableHeader>
                 <TableRow>
                   <TableCell className="font-medium">{t("Date", "التاريخ")}</TableCell>
                   <TableCell className="font-medium">{t("Item", "العنصر")}</TableCell>
                   <TableCell className="font-medium">{t("Type", "النوع")}</TableCell>
                   <TableCell className="font-medium">{t("Qty", "الكمية")}</TableCell>
                 </TableRow>
-              </TableHead>
+              </TableHeader>
               <TableBody>
                 {txns.map((txn) => {
                   const item = itemMap.get(txn.ppeItemId);
