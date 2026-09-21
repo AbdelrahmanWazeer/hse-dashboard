@@ -38,6 +38,25 @@ export function reportStats(report: ReportRow): ReportData {
   return (report.data ?? {}) as ReportData;
 }
 
+function incidentBarChart(byType: Record<string, { count: number; lostDays: number; restrictedDays: number }>): string {
+  const entries = Object.entries(byType);
+  if (entries.length === 0) return "";
+  const max = Math.max(...entries.map(([, v]) => v.count), 1);
+  const bars = entries
+    .map(
+      ([type, v]) =>
+        `<div style="display:flex;align-items:center;gap:8px;margin:6px 0;">
+          <div style="width:140px;font-size:12px;color:#475569;text-align:right;">${INCIDENT_TYPE_META[type]?.label ?? type}</div>
+          <div style="flex:1;background:#e2e8f0;border-radius:4px;height:16px;">
+            <div style="width:${((v.count / max) * 100).toFixed(1)}%;background:#0f766e;height:16px;border-radius:4px;"></div>
+          </div>
+          <div style="width:32px;font-size:12px;font-weight:600;">${v.count}</div>
+        </div>`
+    )
+    .join("");
+  return `<h2>Incidents by type</h2>${bars}`;
+}
+
 export function renderReportHtml(report: ReportRow, tenantName: string): string {
   const data = reportStats(report);
   const s = data.stats ?? {};
@@ -88,6 +107,8 @@ export function renderReportHtml(report: ReportRow, tenantName: string): string 
     <div class="stat"><div class="v">${s.totalInductions ?? 0}</div><div class="l">Inductions</div></div>
     <div class="stat"><div class="v">${s.activePermits ?? 0}</div><div class="l">Active permits</div></div>
   </div>
+
+  ${incidentBarChart(byType)}
 
   <h2>Incident breakdown</h2>
   <table>
