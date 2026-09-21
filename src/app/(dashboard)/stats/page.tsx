@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq, gte } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { tbtRecords, inductions, trainings, workPermits, manhours, manpower } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/guards";
@@ -13,7 +13,43 @@ import { Avatar } from "@/components/ui/misc";
 import { Progress } from "@/components/ui/progress";
 import { AreaChartCard, BarChartCard, MultiBarChartCard, DonutChartCard } from "@/components/charts";
 
-export default async function StatisticsPage() {
+type TimeRange = "week" | "month" | "quarter" | "year" | "project";
+
+function rangeStartTs(range: TimeRange): number {
+  const now = Date.now();
+  const day = 24 * 60 * 60 * 1000;
+  switch (range) {
+    case "week":
+      return now - 7 * day;
+    case "quarter":
+      return now - 91 * day;
+    case "year":
+      return now - 365 * day;
+    case "project":
+      return 0;
+    default:
+      return now - 30 * day;
+  }
+}
+
+const RANGE_OPTS: { key: TimeRange; label: string }[] = [
+  { key: "week", label: "This week" },
+  { key: "month", label: "This month" },
+  { key: "quarter", label: "This quarter" },
+  { key: "year", label: "This year" },
+  { key: "project", label: "Project to date" },
+];
+
+export default async function StatisticsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ range?: string }>;
+}) {
+  const sp = await searchParams;
+  const range = (["week", "month", "quarter", "year", "project"].includes(sp.range ?? "")
+    ? sp.range
+    : "project") as TimeRange;
+  const cutoff = rangeStartTs(range);
   const t = await getT();
   const locale = await getLocale();
   await requirePermission("stats:view");
