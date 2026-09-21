@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { BookOpen, Users, Clock, Star } from "lucide-react";
+import { CourseDetailDialog } from "@/components/course-detail-dialog";
 
 export const dynamic = "force-dynamic";
 
@@ -55,8 +56,19 @@ export async function CatalogSection() {
             const levelMeta = COURSE_LEVELS.find((x) => x.value === c.level);
             const statusMeta = COURSE_STATUS_META[c.status];
             return (
-              <Card key={c.id} className="overflow-hidden">
-                {c.coverUrl ? (
+              <CourseDetailDialog
+                key={c.id}
+                id={c.id}
+                title={c.title}
+                description={c.description ?? ""}
+                coverUrl={c.coverUrl ?? ""}
+                categoryLabel={catMeta?.label ?? null}
+                levelLabel={levelMeta?.label ?? null}
+                durationLabel={formatDurationLabel(c.durationMinutes, tf)}
+                enrolledCount={enrolledByCourse.get(c.id) ?? 0}
+                enrollLabel={t.enroll}
+                learnersLabel={t.learners}
+                trigger={<Card className="overflow-hidden">{c.coverUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={c.coverUrl} alt={c.title} className="aspect-video w-full object-cover" />
                 ) : (
@@ -93,6 +105,8 @@ export async function CatalogSection() {
                   </form>
                 </CardContent>
               </Card>
+              }>
+              </CourseDetailDialog>
             );
           })}
         </div>
