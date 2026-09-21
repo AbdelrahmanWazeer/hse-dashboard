@@ -193,6 +193,41 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
     margin: 0.08,
   });
 
+  // Incident count by type (native bar chart slide)
+  const chartSlide = pptx.addSlide();
+  chartSlide.background = { color: "FFFFFF" };
+  chartSlide.addText("Incident count by type", {
+    x: 0.6,
+    y: 0.45,
+    w: 12,
+    h: 0.7,
+    fontSize: 24,
+    bold: true,
+    color: INK,
+    fontFace: FONT,
+  });
+  const chartData = [
+    {
+      name: "Incidents",
+      labels: Object.keys(byType).map((type) => INCIDENT_TYPE_META[type]?.label ?? type),
+      values: Object.entries(byType).map(([, v]) => v.count),
+    },
+  ];
+  chartSlide.addChart("bar" as never, chartData as never, {
+    x: 0.6,
+    y: 1.4,
+    w: 12,
+    h: 4.8,
+    chartColors: [TEAL],
+    barDir: "bar",
+    catAxisLabelColor: "475569",
+    catAxisLabelFontFace: FONT,
+    catAxisLabelFontSize: 12,
+    valAxisLabelColor: "475569",
+    valAxisLabelFontFace: FONT,
+    valAxisLabelFontSize: 12,
+  });
+
   // Safety performance slide
   const performanceSlide = pptx.addSlide();
   performanceSlide.background = { color: "FFFFFF" };
