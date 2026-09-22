@@ -60,12 +60,12 @@ export default async function StatisticsPage({
   const [series, training, tbtRows, inductionRows, trainingRows, permitRows, mhRows, mpRows] = await Promise.all([
     getMonthlySeries(tenantId),
     getTrainingStats(tenantId),
-    db.select().from(tbtRecords).where(eq(tbtRecords.tenantId, tenantId)).all(),
-    db.select().from(inductions).where(eq(inductions.tenantId, tenantId)).all(),
-    db.select().from(trainings).where(eq(trainings.tenantId, tenantId)).all(),
-    db.select().from(workPermits).where(eq(workPermits.tenantId, tenantId)).all(),
-    db.select().from(manhours).where(eq(manhours.tenantId, tenantId)).all(),
-    db.select().from(manpower).where(eq(manpower.tenantId, tenantId)).all(),
+    db.select().from(tbtRecords).where(and(eq(tbtRecords.tenantId, tenantId), gte(tbtRecords.date, cutoff))).all(),
+    db.select().from(inductions).where(and(eq(inductions.tenantId, tenantId), gte(inductions.date, cutoff))).all(),
+    db.select().from(trainings).where(and(eq(trainings.tenantId, tenantId), gte(trainings.date, cutoff))).all(),
+    db.select().from(workPermits).where(and(eq(workPermits.tenantId, tenantId), gte(workPermits.startDate, cutoff))).all(),
+    db.select().from(manhours).where(and(eq(manhours.tenantId, tenantId), gte(manhours.date, cutoff))).all(),
+    db.select().from(manpower).where(and(eq(manpower.tenantId, tenantId), gte(manpower.date, cutoff))).all(),
   ]);
 
   const totalManhours = mhRows.reduce((a, r) => a + r.manhours, 0);
