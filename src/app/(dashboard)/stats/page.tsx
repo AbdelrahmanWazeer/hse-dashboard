@@ -1,4 +1,4 @@
-import { and, eq, gte } from "drizzle-orm";
+import { and, eq, gte, lt } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { tbtRecords, inductions, trainings, workPermits, manhours, manpower } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/guards";
@@ -68,6 +68,20 @@ export default async function StatisticsPage({
     db.select().from(manpower).where(and(eq(manpower.tenantId, tenantId), gte(manpower.date, cutoff))).all(),
   ]);
 
+  const prevCap = cutoff > 0 ? cutoff - (Date.now() - cutoff) : null;
+  let prevMh = 0, prevTbt = 0, prevInd = 0, prevTrn = 0;
+  if (prevCap !== null) {
+    const [pMh, pTbt, pInd, pTrn] = await Promise.all([
+      db.select().from(manhours).where(and(eq(manhours.tenantId, tenantId), gte(manhours.date, prevCap), lt(manhours.date, cutoff))).all(),
+      db.select().from(tbtRecords).where(and(eq(tbtRecords.tenantId, tenantId), gte(tbtRecords.date, prevCap), lt(tbtRecords.date, cutoff))).all(),
+      db.select().from(inductions).where(and(eq(inductions.tenantId, tenantId), gte(inductions.date, prevCap), lt(inductions.date, cutoff))).all(),
+      db.select().from(trainings).where(and(eq(trainings.tenantId, tenantId), gte(trainings.date, prevCap), lt(trainings.date, cutoff))).all(),
+    ]);
+    prevMh = pMh.reduce((a, r) => a + r.manhours, 0);
+    prevTbt = pTbt.reduce((a, r) => a + r.attendees, 0);
+    prevInd = pInd.length;
+    prevTrn = pTrn.length;
+  }
   const totalManhours = mhRows.reduce((a, r) => a + r.manhours, 0);
   const totalTBTAttendees = tbtRows.reduce((a, r) => a + r.attendees, 0);
   const totalInductions = inductionRows.length;
@@ -126,11 +140,14 @@ export default async function StatisticsPage({
       <PageHeader title="HSE Statistics" description={`Operational safety statistics for ${year}`} />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {safetyPerformance.map((s) => (
+        {safetyPerformance.map((s, i) => (
           <Card key={s.label}>
             <CardContent className="p-4">
               <p className="text-xs font-medium text-muted-foreground">{t(s.label, s.labelAr)}</p>
               <p className="mt-1 text-2xl font-bold">{s.value}</p>
+              {[prevMh, prevTbt, prevInd, prevTrn][i] > 0 && (
+                <p className="text-xs font-medium text-sky-700">{t("vs prev", "vs prev")} {Math.round((({ Manhours: totalManhours, "TBT sessions": totalTBTAttendees, Inductions: totalInductions, "Certified trainings": totalTrainings } as Record<string, number>)[s.label] - [prevMh, prevTbt, prevInd, prevTrn][i]) / [prevMh, prevTbt, prevInd, prevTrn][i] * 100)}%</p>
+              )}
               <p className="text-xs text-muted-foreground">{t(s.unit, s.unitAr)}</p>
               <Progress value={s.pct} className="mt-3" />
             </CardContent>
