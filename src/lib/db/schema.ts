@@ -614,3 +614,15 @@ export const courseProgress = sqliteTable(
 
 export type Course = typeof courses.$inferSelect;
 export type CourseProgress = typeof courseProgress.$inferSelect;
+
+export const subscribers = sqliteTable(
+  "subscribers",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    email: text("email").notNull(),
+    createdAt: integer("created_at").notNull(),
+  },
+  (t) => [uniqueIndex("subscribers_email_idx").on(t.email)],
+);
+
+export type Subscriber = typeof subscribers.$inferSelect;
